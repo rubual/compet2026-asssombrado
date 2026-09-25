@@ -1,0 +1,176 @@
+[gd_scene format=3 uid="uid://grqpb4qgxo0x"]
+
+[ext_resource type="Script" uid="uid://b2l873wqtdbe0" path="res://player.gd" id="1_glv2v"]
+[ext_resource type="Script" uid="uid://dphtohq1om335" path="res://main.gd" id="1_uu6xs"]
+[ext_resource type="Texture2D" uid="uid://jol7t6fwqpmi" path="res://assets/WhatsApp Image 2026-09-15 at 18.07.12.jpeg" id="2_cm0pq"]
+[ext_resource type="Texture2D" uid="uid://ch3un7xwe5hhr" path="res://assets/bocudo   09-14-2026 05-33-35.png" id="3_r0du0"]
+[ext_resource type="PackedScene" uid="uid://dtwphqmgtfibt" path="res://inimigos/InimigoRapido.tscn" id="5_trn2v"]
+[ext_resource type="PackedScene" uid="uid://oiqrs2jheaf6" path="res://inimigos/InimigoLento.tscn" id="6_03owx"]
+[ext_resource type="PackedScene" uid="uid://xfwoct8e2jw0" path="res://inimigos/InimigoNormal.tscn" id="7_wkp8b"]
+[ext_resource type="PackedScene" uid="uid://bnx06gw3b7icp" path="res://inimigos/InimigoFalso.tscn" id="8_20pc6"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_g4v7s"]
+font_size = 100
+
+[sub_resource type="LabelSettings" id="LabelSettings_uu6xs"]
+font_size = 30
+
+[sub_resource type="LabelSettings" id="LabelSettings_r0du0"]
+font_size = 143
+
+[sub_resource type="LabelSettings" id="LabelSettings_yf5fn"]
+font_size = 100
+
+[node name="main" type="Node2D" unique_id=927341957]
+position = Vector2(-2, 0)
+script = ExtResource("1_uu6xs")
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1150491797]
+custom_minimum_size = Vector2(1152, 648)
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.0
+offset_top = 2.0
+offset_right = 1150.0
+offset_bottom = 657.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_cm0pq")
+expand_mode = 1
+
+[node name="player" type="Node2D" parent="." unique_id=1648461592]
+script = ExtResource("1_glv2v")
+
+[node name="PosDireita" type="Marker2D" parent="." unique_id=816641325]
+position = Vector2(959, 222)
+
+[node name="PosCentro" type="Marker2D" parent="." unique_id=518419718]
+position = Vector2(568, 144)
+
+[node name="PosEsquerda" type="Marker2D" parent="." unique_id=691483880]
+position = Vector2(211, 243)
+
+[node name="Interface" type="CanvasLayer" parent="." unique_id=434303943]
+
+[node name="GameOver" type="ColorRect" parent="Interface" unique_id=518463626]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.057996348, 0.057996348, 0.05799634, 1)
+
+[node name="Jumpscare" type="TextureRect" parent="Interface/GameOver" unique_id=1568975779]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("3_r0du0")
+
+[node name="Texto" type="Label" parent="Interface/GameOver/Jumpscare" unique_id=1875957650]
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 5.0
+offset_top = 237.5
+offset_right = 1101.0
+offset_bottom = 374.5
+grow_horizontal = 2
+grow_vertical = 2
+text = "PEGOU NO CATAVENTO"
+label_settings = SubResource("LabelSettings_g4v7s")
+
+[node name="BotaoTentarNovamente" type="Button" parent="Interface/GameOver" unique_id=792227891]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+text = "TENTAR NOVAMENTE"
+
+[node name="Relogio" type="Label" parent="Interface" unique_id=2109114600]
+offset_left = 1067.0
+offset_top = 4.0
+offset_right = 1149.0
+offset_bottom = 46.0
+text = "02:00
+"
+label_settings = SubResource("LabelSettings_uu6xs")
+
+[node name="Vitoria" type="ColorRect" parent="Interface" unique_id=698444594]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.46370792, 0.95804244, 0.9079814, 1)
+
+[node name="TextoVitoria" type="Label" parent="Interface/Vitoria" unique_id=885897146]
+layout_mode = 0
+offset_left = 12.0
+offset_top = 192.0
+offset_right = 1153.0
+offset_bottom = 343.0
+text = "PABENS PASSOU"
+label_settings = SubResource("LabelSettings_r0du0")
+
+[node name="IndicacaoLevel" type="ColorRect" parent="Interface" unique_id=1329155936]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.036556315, 0.03655632, 0.03655632, 1)
+
+[node name="TextoLevel" type="Label" parent="Interface/IndicacaoLevel" unique_id=1779515598]
+layout_mode = 0
+offset_left = 106.0
+offset_top = 224.0
+offset_right = 1030.0
+offset_bottom = 361.0
+text = "LEVEL 1 (UM) (ONE)"
+label_settings = SubResource("LabelSettings_yf5fn")
+
+[node name="Menu" type="Control" parent="Interface" unique_id=1105009682]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="BotaoIniciar" type="Button" parent="Interface/Menu" unique_id=368786540]
+layout_mode = 0
+offset_left = 134.0
+offset_top = 327.0
+offset_right = 285.0
+offset_bottom = 392.0
+text = "INICIAR JOGO"
+
+[node name="Inimigos" type="Node2D" parent="." unique_id=1971937]
+
+[node name="InimigoLento" parent="Inimigos" unique_id=650973887 instance=ExtResource("6_03owx")]
+position = Vector2(-409.06503, 708.5332)
+scale = Vector2(13.633128, 14.1833515)
+
+[node name="InimigoRapido" parent="Inimigos" unique_id=1846292329 instance=ExtResource("5_trn2v")]
+position = Vector2(-398.70026, 185.00002)
+
+[node name="InimigoNormal" parent="Inimigos" unique_id=1760624543 instance=ExtResource("7_wkp8b")]
+position = Vector2(-395.99997, 432)
+
+[node name="InimigoFalso" parent="Inimigos" unique_id=651885098 instance=ExtResource("8_20pc6")]
+position = Vector2(-400, 967.50006)
+
+[connection signal="pressed" from="Interface/GameOver/BotaoTentarNovamente" to="." method="_on_botao_tentar_novamente_pressed"]
+[connection signal="pressed" from="Interface/Menu/BotaoIniciar" to="." method="_on_botao_iniciar_pressed"]

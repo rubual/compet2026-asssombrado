@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bnx06gw3b7icp"]
+
+[ext_resource type="Texture2D" uid="uid://4ybyyg3iwwmd" path="res://assets/skeleton1.png" id="1_f0mc6"]
+
+[node name="InimigoFalso" type="Sprite2D" unique_id=651885098]
+scale = Vector2(12.25, 15.187492)
+texture = ExtResource("1_f0mc6")

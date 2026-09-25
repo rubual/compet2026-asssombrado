@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://dtwphqmgtfibt"]
+
+[ext_resource type="Texture2D" uid="uid://ccyyd18jdkcrl" path="res://assets/ghost3.png" id="1_a6733"]
+
+[node name="InimigoRapido" type="Sprite2D" unique_id=1846292329]
+scale = Vector2(12.83753, 13.803223)
+texture = ExtResource("1_a6733")

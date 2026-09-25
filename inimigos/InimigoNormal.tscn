@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://xfwoct8e2jw0"]
+
+[ext_resource type="Texture2D" uid="uid://vjm4dlex0nfw" path="res://assets/ghost2.png" id="1_lerwv"]
+
+[node name="InimigoNormal" type="Sprite2D" unique_id=1760624543]
+scale = Vector2(12.9331255, 13.446163)
+texture = ExtResource("1_lerwv")
