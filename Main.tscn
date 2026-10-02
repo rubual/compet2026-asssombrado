@@ -87,9 +87,15 @@ text = "PEGOU NO CATAVENTO"
 label_settings = SubResource("LabelSettings_g4v7s")
 
 [node name="BotaoTentarNovamente" type="Button" parent="Interface/GameOver" unique_id=792227891]
-layout_mode = 0
-offset_right = 8.0
-offset_bottom = 8.0
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = -4.0
+offset_bottom = 4.0
+grow_horizontal = 2
+grow_vertical = 2
 text = "TENTAR NOVAMENTE"
 
 [node name="Relogio" type="Label" parent="Interface" unique_id=2109114600]
@@ -145,16 +151,22 @@ label_settings = SubResource("LabelSettings_yf5fn")
 
 [node name="Menu" type="Control" parent="Interface" unique_id=1105009682]
 layout_mode = 3
-anchors_preset = 0
-offset_right = 40.0
-offset_bottom = 40.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
 [node name="BotaoIniciar" type="Button" parent="Interface/Menu" unique_id=368786540]
-layout_mode = 0
-offset_left = 134.0
-offset_top = 327.0
-offset_right = 285.0
-offset_bottom = 392.0
+layout_mode = 1
+anchors_preset = 14
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_top = 176.0
+offset_bottom = 241.0
+grow_horizontal = 2
+grow_vertical = 2
 text = "INICIAR JOGO"
 
 [node name="Inimigos" type="Node2D" parent="." unique_id=1971937]
