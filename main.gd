@@ -51,6 +51,9 @@ var cena_falso = preload("res://inimigos/InimigoFalso.tscn")
 @onready var botao_iniciar = $Interface/Menu/BotaoIniciar
 @onready var botao_tentar = $Interface/GameOver/BotaoTentarNovamente
 
+# Nova Logo do Jogo
+var logo_jogo = TextureRect.new()
+
 
 func _ready():
 	# Oculta o cursor do mouse, já que o foco é o hardware/lanterna (Kiosk mode)
@@ -99,6 +102,27 @@ func _ready():
 func _configurar_textos():
 	# Expande o Menu para cobrir a tela inteira, para que as âncoras dos filhos funcionem
 	$Interface/Menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	# ==== CONFIGURAÇÃO DA LOGO ====
+	logo_jogo.texture = preload("res://assets/AsSsombradoLogo.png")
+	logo_jogo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	logo_jogo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	logo_jogo.set_anchors_preset(Control.PRESET_HCENTER_WIDE)
+	logo_jogo.offset_left = 0
+	logo_jogo.offset_right = 0
+	logo_jogo.offset_top = 50
+	logo_jogo.offset_bottom = 400
+	$Interface/Menu.add_child(logo_jogo)
+	
+	# Animação macabra da logo (Flutuação e Mudança de Brilho)
+	var tween_logo = create_tween().set_loops()
+	# Ela desce suavemente e escurece um pouco
+	tween_logo.tween_property(logo_jogo, "position:y", 65.0, 3.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween_logo.parallel().tween_property(logo_jogo, "modulate", Color(0.6, 0.6, 0.6, 1.0), 3.0).set_trans(Tween.TRANS_SINE)
+	# Ela sobe suavemente e recupera o brilho
+	tween_logo.tween_property(logo_jogo, "position:y", 35.0, 3.0).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween_logo.parallel().tween_property(logo_jogo, "modulate", Color(1.0, 1.0, 1.0, 1.0), 3.0).set_trans(Tween.TRANS_SINE)
+	# ==============================
 
 	# Transforma os botões antigos em textos piscantes de Arcade e os centraliza
 	botao_iniciar.flat = true
