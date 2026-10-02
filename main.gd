@@ -80,7 +80,8 @@ func _ready():
 	
 	# Animação de entrada suave ao abrir o jogo
 	var tween_abertura = create_tween()
-	tween_abertura.tween_property(cortina_preta, "color:a", 0.0, 1.5)
+	tween_abertura.tween_property(cortina_preta, "color:a", 0.0, 2.5) # Prolongado para 2.5s
+	tween_abertura.tween_callback(func(): botao_iniciar.visible = true) # Revela o texto após a logo aparecer
 	
 	# Adiciona os tocadores de som à cena
 	add_child(som_lanterna)
@@ -124,18 +125,32 @@ func _configurar_textos():
 	tween_logo.parallel().tween_property(logo_jogo, "modulate", Color(1.0, 1.0, 1.0, 1.0), 3.0).set_trans(Tween.TRANS_SINE)
 	# ==============================
 
-	# Transforma os botões antigos em textos piscantes de Arcade e os centraliza
+	# ==== FONTES DO SISTEMA ====
+	var fonte_arcade = SystemFont.new()
+	fonte_arcade.font_names = PackedStringArray(["Consolas", "Courier New", "Impact"])
+	
+	var fonte_macabra = SystemFont.new()
+	fonte_macabra.font_names = PackedStringArray(["Chiller", "Impact", "Georgia"])
+
+	# Estilização Profissional dos Botões
 	botao_iniciar.flat = true
 	botao_iniciar.text = "APONTE A LANTERNA PARA INICIAR"
 	botao_iniciar.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	botao_iniciar.add_theme_color_override("font_color", Color(1, 1, 0)) # Amarelo
-	botao_iniciar.add_theme_font_size_override("font_size", 40)
+	botao_iniciar.add_theme_font_override("font", fonte_arcade)
+	botao_iniciar.add_theme_font_size_override("font_size", 38)
+	botao_iniciar.add_theme_color_override("font_color", Color(0.3, 0.9, 0.8)) # Ciano Sombrio
+	botao_iniciar.add_theme_constant_override("outline_size", 8)
+	botao_iniciar.add_theme_color_override("font_outline_color", Color.BLACK)
+	botao_iniciar.visible = false # Oculto até a logo carregar
 	
 	botao_tentar.flat = true
 	botao_tentar.text = "APONTE A LANTERNA PARA TENTAR DE NOVO"
 	botao_tentar.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	botao_tentar.add_theme_color_override("font_color", Color(1, 0.2, 0.2)) # Vermelho
-	botao_tentar.add_theme_font_size_override("font_size", 30)
+	botao_tentar.add_theme_font_override("font", fonte_arcade)
+	botao_tentar.add_theme_font_size_override("font_size", 28)
+	botao_tentar.add_theme_color_override("font_color", Color(0.9, 0.6, 0.2)) # Dourado Alaranjado
+	botao_tentar.add_theme_constant_override("outline_size", 6)
+	botao_tentar.add_theme_color_override("font_outline_color", Color.BLACK)
 	# Prende no topo da tela
 	botao_tentar.set_anchors_preset(Control.PRESET_TOP_WIDE)
 	botao_tentar.offset_top = 50
@@ -159,9 +174,12 @@ func _configurar_textos():
 	texto_game_over.offset_bottom = 300
 	
 	if texto_game_over.label_settings:
-		texto_game_over.label_settings.font_color = Color(0.8, 0, 0) # Sangue
+		texto_game_over.label_settings.font = fonte_macabra
+		texto_game_over.label_settings.font_color = Color(0.7, 0.0, 0.0) # Sangue escuro
 		texto_game_over.label_settings.shadow_color = Color(0, 0, 0, 1.0)
-		texto_game_over.label_settings.shadow_size = 10
+		texto_game_over.label_settings.shadow_size = 15
+		texto_game_over.label_settings.outline_size = 8
+		texto_game_over.label_settings.outline_color = Color.BLACK
 		
 	# Estilo da Vitória e Animação de Respiração (Pulsar)
 	texto_vitoria.text = "SOBREVIVEU À NOITE!"
