@@ -10,6 +10,7 @@ var jogo_iniciado = false
 var jogo_terminou = false
 var mudando_level = false
 var lanterna_pressionada = false # Para evitar spam do is_key_pressed
+var pode_reiniciar = false # Trava de segurança para não pular menus acidentalmente
 
 # Efeitos Visuais e Sonoros
 var shake_intensity = 0.0
@@ -44,6 +45,9 @@ var cena_falso = preload("res://inimigos/InimigoFalso.tscn")
 
 
 func _ready():
+	# Oculta o cursor do mouse, já que o foco é o hardware/lanterna (Kiosk mode)
+	Input.mouse_mode = Input.MOUSE_MODE_HIDDEN
+
 	# Esconde as telas no começo
 	game_over_tela.visible = false
 	jumpscare.visible = false
@@ -68,14 +72,41 @@ func _ready():
 
 
 func _process(delta):
-	# Se o jogo ainda não começou, não faz nada.
+	# === NOVA LÓGICA DE INPUT GLOBAL ===
+	var acionou = false
+	var direcao = ""
+
+	if Input.is_key_pressed(KEY_A) or Input.is_action_pressed("ui_left"):
+		direcao = "esquerda"
+		acionou = true
+	elif Input.is_key_pressed(KEY_S) or Input.is_action_pressed("ui_down"):
+		direcao = "centro"
+		acionou = true
+	elif Input.is_key_pressed(KEY_D) or Input.is_action_pressed("ui_right"):
+		direcao = "direita"
+		acionou = true
+
+	var disparou_agora = false
+	if acionou and not lanterna_pressionada:
+		lanterna_pressionada = true
+		disparou_agora = true
+	elif not acionou:
+		lanterna_pressionada = false
+	# ====================================
+
+	# Se o jogo ainda não começou, qualquer luz inicia o jogo!
 	if not jogo_iniciado:
+		if disparou_agora:
+			_on_botao_iniciar_pressed()
 		return
 
-	# Se o jogo terminou, não faz nada.
+	# Se o jogo terminou, qualquer luz reinicia o jogo (respeitando a trava de tempo)
 	if jogo_terminou:
+		if disparou_agora and pode_reiniciar:
+			_on_botao_tentar_novamente_pressed()
 		return
 
+	# Daqui pra baixo é o jogo rodando normalmente...
 	tempo_level += delta
 
 	var eventos = dados.levels[level_atual]
@@ -102,8 +133,9 @@ func _process(delta):
 	else:
 		bg.position = Vector2(-2, 2) # Posição original do bg
 
-	# Verifica se o jogador apontou a lanterna
-	verificar_lanterna()
+	# Se o jogador apontou a lanterna durante o gameplay
+	if disparou_agora:
+		testar_lanterna(direcao)
 
 	if jogo_terminou:
 		return
@@ -224,26 +256,9 @@ func atualizar_inimigos(delta):
 
 
 func verificar_lanterna():
-	var acionou = false
-	var direcao = ""
-
-	# Aceita tanto o teclado (A, S, D) quanto o D-pad do controle genérico Bluetooth (ui_left, ui_down, ui_right)
-	if Input.is_key_pressed(KEY_A) or Input.is_action_pressed("ui_left"):
-		direcao = "esquerda"
-		acionou = true
-	elif Input.is_key_pressed(KEY_S) or Input.is_action_pressed("ui_down"):
-		direcao = "centro"
-		acionou = true
-	elif Input.is_key_pressed(KEY_D) or Input.is_action_pressed("ui_right"):
-		direcao = "direita"
-		acionou = true
-
-	# Para não spammar o evento caso ele segure o botão
-	if acionou and not lanterna_pressionada:
-		lanterna_pressionada = true
-		testar_lanterna(direcao)
-	elif not acionou:
-		lanterna_pressionada = false
+	# FUNÇÃO DESATIVADA: A lógica de checar o botão foi movida para o topo do _process()
+	# Isso permite usar a lanterna não só para atirar, mas também para clicar nos menus!
+	pass
 
 
 func testar_lanterna(direcao):
@@ -318,6 +333,7 @@ func game_over():
 	som_jumpscare.play()
 	shake_intensity = 0.0
 	bg.position = Vector2(-2, 2)
+	pode_reiniciar = false # Trava para não pular o Jumpscare sem querer
 
 	# Remove todos os inimigos
 	for inimigo in inimigos_ativos:
@@ -329,9 +345,14 @@ func game_over():
 	jumpscare.visible = true
 	game_over_tela.visible = true
 
+	# Aguarda 1.5s antes de permitir que a lanterna reinicie o jogo
+	await get_tree().create_timer(1.5).timeout
+	pode_reiniciar = true
+
 
 func vitoria():
 	jogo_terminou = true
+	pode_reiniciar = false
 
 	# Remove todos os inimigos
 	for inimigo in inimigos_ativos:
@@ -341,6 +362,10 @@ func vitoria():
 
 	# Mostra a tela de vitória
 	vitoria_tela.visible = true
+	
+	# Aguarda 1.0s antes de permitir que a lanterna reinicie o jogo
+	await get_tree().create_timer(1.0).timeout
+	pode_reiniciar = true
 
 
 func iniciar_level():
