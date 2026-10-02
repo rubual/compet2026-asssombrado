@@ -16,6 +16,7 @@ var pode_reiniciar = false # Trava de segurança para não pular menus acidental
 var shake_intensity = 0.0
 @onready var bg = $TextureRect
 var flash_luz = ColorRect.new()
+var cortina_preta = ColorRect.new() # Camada global de Fade
 var som_lanterna = AudioStreamPlayer.new()
 var som_jumpscare = AudioStreamPlayer.new()
 var som_inimigo_derrotado = AudioStreamPlayer.new()
@@ -67,6 +68,17 @@ func _ready():
 	flash_luz.mouse_filter = Control.MOUSE_FILTER_IGNORE # <--- DEIXA O CLIQUE PASSAR
 	$Interface.add_child(flash_luz)
 	
+	# Cortina de Fade global
+	cortina_preta.color = Color(0, 0, 0, 1.0) # Começa tudo preto
+	cortina_preta.set_anchors_preset(Control.PRESET_FULL_RECT)
+	cortina_preta.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	cortina_preta.z_index = 100
+	$Interface.add_child(cortina_preta)
+	
+	# Animação de entrada suave ao abrir o jogo
+	var tween_abertura = create_tween()
+	tween_abertura.tween_property(cortina_preta, "color:a", 0.0, 1.5)
+	
 	# Adiciona os tocadores de som à cena
 	add_child(som_lanterna)
 	add_child(som_jumpscare)
@@ -100,6 +112,10 @@ func _configurar_textos():
 	botao_tentar.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao_tentar.add_theme_color_override("font_color", Color(1, 0.2, 0.2)) # Vermelho
 	botao_tentar.add_theme_font_size_override("font_size", 30)
+	# Prende no topo da tela
+	botao_tentar.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	botao_tentar.offset_top = 50
+	botao_tentar.offset_bottom = 110
 
 	# Animação de Piscar (Blinking) Infinita para os textos de continuar
 	var tween_botoes = create_tween().set_loops()
@@ -163,6 +179,10 @@ func _process(delta):
 	elif not acionou:
 		lanterna_pressionada = false
 	# ====================================
+
+	# INTERROMPE COMPLETAMENTE O FLUXO DO JOGO DURANTE QUALQUER TRANSIÇÃO
+	if mudando_level:
+		return
 
 	# Se o jogo ainda não começou, qualquer luz inicia o jogo!
 	if not jogo_iniciado:
@@ -427,6 +447,7 @@ func proximo_level():
 
 
 func game_over():
+	mudando_level = false
 	jogo_terminou = true
 	som_jumpscare.play()
 	shake_intensity = 0.0
@@ -449,6 +470,7 @@ func game_over():
 
 
 func vitoria():
+	mudando_level = false
 	jogo_terminou = true
 	pode_reiniciar = false
 
@@ -473,21 +495,34 @@ func iniciar_level():
 
 
 func _on_botao_iniciar_pressed():
+	mudando_level = true
+	
+	var tween = create_tween()
+	tween.tween_property(cortina_preta, "color:a", 1.0, 0.5)
+	await tween.finished
+
 	jogo_iniciado = true
 	jogo_terminou = false
 	level_atual = -1 # Começa no -1 porque o proximo_level vai somar +1
-	mudando_level = false
-
+	
 	$Interface/Menu.visible = false
 
+	# A própria função proximo_level já tem sua tela preta de "NOITE X"
+	# Então nós apenas ocultamos a cortina global instantaneamente para ela assumir
+	cortina_preta.color.a = 0.0
 	proximo_level()
 
 
 func _on_botao_tentar_novamente_pressed():
-	# Retorna para o Menu Inicial
+	mudando_level = true
+	
+	var tween = create_tween()
+	tween.tween_property(cortina_preta, "color:a", 1.0, 0.8)
+	await tween.finished
+
+	# Retorna para o Menu Inicial de forma limpa
 	jogo_iniciado = false
 	jogo_terminou = false
-	mudando_level = false
 	pode_reiniciar = false
 
 	level_atual = 0
@@ -504,3 +539,9 @@ func _on_botao_tentar_novamente_pressed():
 	vitoria_tela.visible = false
 
 	$Interface/Menu.visible = true
+	
+	var tween_out = create_tween()
+	tween_out.tween_property(cortina_preta, "color:a", 0.0, 0.8)
+	await tween_out.finished
+	
+	mudando_level = false
