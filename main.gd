@@ -85,28 +85,21 @@ func _ready():
 
 
 func _configurar_textos():
+	# Expande o Menu para cobrir a tela inteira, para que as âncoras dos filhos funcionem
+	$Interface/Menu.set_anchors_preset(Control.PRESET_FULL_RECT)
+
 	# Transforma os botões antigos em textos piscantes de Arcade e os centraliza
 	botao_iniciar.flat = true
 	botao_iniciar.text = "APONTE A LANTERNA PARA INICIAR"
 	botao_iniciar.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao_iniciar.add_theme_color_override("font_color", Color(1, 1, 0)) # Amarelo
 	botao_iniciar.add_theme_font_size_override("font_size", 40)
-	botao_iniciar.set_anchors_preset(Control.PRESET_HCENTER_WIDE)
-	botao_iniciar.offset_left = 0
-	botao_iniciar.offset_right = 0
-	botao_iniciar.offset_top = 500
-	botao_iniciar.offset_bottom = 560
 	
 	botao_tentar.flat = true
 	botao_tentar.text = "APONTE A LANTERNA PARA TENTAR DE NOVO"
 	botao_tentar.alignment = HORIZONTAL_ALIGNMENT_CENTER
 	botao_tentar.add_theme_color_override("font_color", Color(1, 0.2, 0.2)) # Vermelho
 	botao_tentar.add_theme_font_size_override("font_size", 30)
-	botao_tentar.set_anchors_preset(Control.PRESET_HCENTER_WIDE)
-	botao_tentar.offset_left = 0
-	botao_tentar.offset_right = 0
-	botao_tentar.offset_top = 500
-	botao_tentar.offset_bottom = 560
 
 	# Animação de Piscar (Blinking) Infinita para os textos de continuar
 	var tween_botoes = create_tween().set_loops()
