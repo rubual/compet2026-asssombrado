@@ -43,6 +43,13 @@ var cena_falso = preload("res://inimigos/InimigoFalso.tscn")
 @onready var vitoria_tela = $Interface/Vitoria
 @onready var indicacao_level = $Interface/IndicacaoLevel
 
+# Referências aos Textos e Botões para animação
+@onready var texto_game_over = $Interface/GameOver/Jumpscare/Texto
+@onready var texto_vitoria = $Interface/Vitoria/TextoVitoria
+@onready var texto_level = $Interface/IndicacaoLevel/TextoLevel
+@onready var botao_iniciar = $Interface/Menu/BotaoIniciar
+@onready var botao_tentar = $Interface/GameOver/BotaoTentarNovamente
+
 
 func _ready():
 	# Oculta o cursor do mouse, já que o foco é o hardware/lanterna (Kiosk mode)
@@ -67,8 +74,78 @@ func _ready():
 	# TODO: Depois você pode arrastar arquivos de áudio para cá:
 	# som_lanterna.stream = preload("res://caminho_do_som.mp3")
 
+	# Esconde o relógio estático que estava sobrando
+	relogio.visible = false
+
+	# Aplica o novo visual de Arcade e Terror nos textos
+	_configurar_textos()
+
 	# Mostra o menu
 	$Interface/Menu.visible = true
+
+
+func _configurar_textos():
+	# Transforma os botões antigos em textos piscantes de Arcade e os centraliza
+	botao_iniciar.flat = true
+	botao_iniciar.text = "APONTE A LANTERNA PARA INICIAR"
+	botao_iniciar.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	botao_iniciar.add_theme_color_override("font_color", Color(1, 1, 0)) # Amarelo
+	botao_iniciar.add_theme_font_size_override("font_size", 40)
+	botao_iniciar.set_anchors_preset(Control.PRESET_HCENTER_WIDE)
+	botao_iniciar.offset_left = 0
+	botao_iniciar.offset_right = 0
+	botao_iniciar.offset_top = 500
+	botao_iniciar.offset_bottom = 560
+	
+	botao_tentar.flat = true
+	botao_tentar.text = "APONTE A LANTERNA PARA TENTAR DE NOVO"
+	botao_tentar.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	botao_tentar.add_theme_color_override("font_color", Color(1, 0.2, 0.2)) # Vermelho
+	botao_tentar.add_theme_font_size_override("font_size", 30)
+	botao_tentar.set_anchors_preset(Control.PRESET_HCENTER_WIDE)
+	botao_tentar.offset_left = 0
+	botao_tentar.offset_right = 0
+	botao_tentar.offset_top = 500
+	botao_tentar.offset_bottom = 560
+
+	# Animação de Piscar (Blinking) Infinita para os textos de continuar
+	var tween_botoes = create_tween().set_loops()
+	tween_botoes.tween_property(botao_iniciar, "modulate:a", 0.2, 0.6)
+	tween_botoes.parallel().tween_property(botao_tentar, "modulate:a", 0.2, 0.6)
+	tween_botoes.tween_property(botao_iniciar, "modulate:a", 1.0, 0.6)
+	tween_botoes.parallel().tween_property(botao_tentar, "modulate:a", 1.0, 0.6)
+	
+	# Estilo do Game Over (Tensão) e Centralização
+	texto_game_over.text = "VOCÊ FOI PEGO..."
+	texto_game_over.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	texto_game_over.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	texto_game_over.set_anchors_preset(Control.PRESET_HCENTER_WIDE)
+	texto_game_over.offset_left = 0
+	texto_game_over.offset_right = 0
+	texto_game_over.offset_top = 100
+	texto_game_over.offset_bottom = 300
+	
+	if texto_game_over.label_settings:
+		texto_game_over.label_settings.font_color = Color(0.8, 0, 0) # Sangue
+		texto_game_over.label_settings.shadow_color = Color(0, 0, 0, 1.0)
+		texto_game_over.label_settings.shadow_size = 10
+		
+	# Estilo da Vitória e Animação de Respiração (Pulsar)
+	texto_vitoria.text = "SOBREVIVEU À NOITE!"
+	if texto_vitoria.label_settings:
+		texto_vitoria.label_settings.font_color = Color(1, 0.8, 0) # Dourado
+		texto_vitoria.label_settings.shadow_color = Color(0, 0, 0, 0.7)
+		texto_vitoria.label_settings.shadow_size = 5
+		
+	# Para pulsar a partir do centro, garantimos que o texto esteja centralizado na tela
+	texto_vitoria.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	texto_vitoria.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	texto_vitoria.set_anchors_preset(Control.PRESET_FULL_RECT)
+	texto_vitoria.pivot_offset = Vector2(1152/2, 648/2) # Centro aproximado da tela
+	
+	var tween_vitoria = create_tween().set_loops()
+	tween_vitoria.tween_property(texto_vitoria, "scale", Vector2(1.05, 1.05), 1.0).set_trans(Tween.TRANS_SINE)
+	tween_vitoria.tween_property(texto_vitoria, "scale", Vector2(1.0, 1.0), 1.0).set_trans(Tween.TRANS_SINE)
 
 
 func _process(delta):
@@ -195,6 +272,20 @@ func aparecer_inimigo(evento):
 		return
 
 
+	# ==== Animações do Fantasma ====
+	# Surgimento (Fade In)
+	inimigo.modulate.a = 0.0
+	var tween_spawn = create_tween()
+	tween_spawn.tween_property(inimigo, "modulate:a", 1.0, 0.6)
+	
+	# Flutuação (Hover) contínua
+	var tween_float = create_tween().set_loops()
+	var base_y = inimigo.position.y
+	tween_float.tween_property(inimigo, "position:y", base_y - 15.0, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	tween_float.tween_property(inimigo, "position:y", base_y, 1.5).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	# ===============================
+
+
 	# Define o tempo de reação
 	var tempo_reacao = 3.0
 
@@ -319,10 +410,24 @@ func proximo_level():
 	# Reinicia o nível
 	tempo_level = 0.0
 	fantasma_atual = 0
+	
+	# Texto de introdução da Fase e Transição Suave (Fade In/Out)
+	texto_level.text = "NOITE " + str(level_atual + 1)
+	texto_level.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	texto_level.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	texto_level.set_anchors_preset(Control.PRESET_FULL_RECT)
 
 	indicacao_level.visible = true
+	indicacao_level.modulate.a = 0.0
+	
+	var tween_entrada = create_tween()
+	tween_entrada.tween_property(indicacao_level, "modulate:a", 1.0, 0.5)
 
 	await get_tree().create_timer(2.0).timeout
+	
+	var tween_saida = create_tween()
+	tween_saida.tween_property(indicacao_level, "modulate:a", 0.0, 0.5)
+	await tween_saida.finished
 
 	indicacao_level.visible = false
 	mudando_level = false
@@ -377,17 +482,20 @@ func iniciar_level():
 func _on_botao_iniciar_pressed():
 	jogo_iniciado = true
 	jogo_terminou = false
-	level_atual = 0
+	level_atual = -1 # Começa no -1 porque o proximo_level vai somar +1
+	mudando_level = false
 
 	$Interface/Menu.visible = false
 
-	iniciar_level()
+	proximo_level()
 
 
 func _on_botao_tentar_novamente_pressed():
-	jogo_iniciado = true
+	# Retorna para o Menu Inicial
+	jogo_iniciado = false
 	jogo_terminou = false
 	mudando_level = false
+	pode_reiniciar = false
 
 	level_atual = 0
 	fantasma_atual = 0
@@ -402,6 +510,4 @@ func _on_botao_tentar_novamente_pressed():
 	jumpscare.visible = false
 	vitoria_tela.visible = false
 
-	$Interface/Menu.visible = false
-
-	iniciar_level()
+	$Interface/Menu.visible = true
