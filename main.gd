@@ -9,6 +9,15 @@ var tempo_level = 0.0
 var jogo_iniciado = false
 var jogo_terminou = false
 var mudando_level = false
+var lanterna_pressionada = false # Para evitar spam do is_key_pressed
+
+# Efeitos Visuais e Sonoros
+var shake_intensity = 0.0
+@onready var bg = $TextureRect
+var flash_luz = ColorRect.new()
+var som_lanterna = AudioStreamPlayer.new()
+var som_jumpscare = AudioStreamPlayer.new()
+var som_inimigo_derrotado = AudioStreamPlayer.new()
 
 # Guarda todos os inimigos que estão aparecendo
 var inimigos_ativos = []
@@ -40,6 +49,19 @@ func _ready():
 	jumpscare.visible = false
 	vitoria_tela.visible = false
 	indicacao_level.visible = false
+	
+	# Configura o Flash de Luz da Lanterna
+	flash_luz.color = Color(1, 1, 0.8, 0.0) # Amarelo transparente
+	flash_luz.set_anchors_preset(Control.PRESET_FULL_RECT)
+	flash_luz.mouse_filter = Control.MOUSE_FILTER_IGNORE # <--- DEIXA O CLIQUE PASSAR
+	$Interface.add_child(flash_luz)
+	
+	# Adiciona os tocadores de som à cena
+	add_child(som_lanterna)
+	add_child(som_jumpscare)
+	add_child(som_inimigo_derrotado)
+	# TODO: Depois você pode arrastar arquivos de áudio para cá:
+	# som_lanterna.stream = preload("res://caminho_do_som.mp3")
 
 	# Mostra o menu
 	$Interface/Menu.visible = true
@@ -68,6 +90,17 @@ func _process(delta):
 
 	# Atualiza todos os inimigos que estão vivos
 	atualizar_inimigos(delta)
+
+	# Efeito de Flash desaparecendo gradualmente
+	if flash_luz.color.a > 0:
+		flash_luz.color.a -= delta * 3.0
+
+	# Efeito de Screen Shake (tensão aumentando)
+	if shake_intensity > 0:
+		bg.position = Vector2(randf_range(-shake_intensity, shake_intensity), randf_range(-shake_intensity, shake_intensity))
+		shake_intensity = lerpf(shake_intensity, 0.0, 5 * delta)
+	else:
+		bg.position = Vector2(-2, 2) # Posição original do bg
 
 	# Verifica se o jogador apontou a lanterna
 	verificar_lanterna()
@@ -166,6 +199,10 @@ func atualizar_inimigos(delta):
 
 		# Diminui o tempo restante
 		inimigo.tempo_restante -= delta
+		
+		# Aumenta a tensão (shake) se o inimigo for verdadeiro e estiver prestes a atacar
+		if inimigo.tipo != "falso" and inimigo.tempo_restante < 1.0:
+			shake_intensity = (1.0 - inimigo.tempo_restante) * 15.0
 
 		# O tempo acabou
 		if inimigo.tempo_restante <= 0:
@@ -187,18 +224,32 @@ func atualizar_inimigos(delta):
 
 
 func verificar_lanterna():
-	# Por enquanto continuamos usando A/S/D para testar.
-	if Input.is_key_pressed(KEY_A):
-		testar_lanterna("esquerda")
+	var acionou = false
+	var direcao = ""
 
-	if Input.is_key_pressed(KEY_S):
-		testar_lanterna("centro")
+	# Aceita tanto o teclado (A, S, D) quanto o D-pad do controle genérico Bluetooth (ui_left, ui_down, ui_right)
+	if Input.is_key_pressed(KEY_A) or Input.is_action_pressed("ui_left"):
+		direcao = "esquerda"
+		acionou = true
+	elif Input.is_key_pressed(KEY_S) or Input.is_action_pressed("ui_down"):
+		direcao = "centro"
+		acionou = true
+	elif Input.is_key_pressed(KEY_D) or Input.is_action_pressed("ui_right"):
+		direcao = "direita"
+		acionou = true
 
-	if Input.is_key_pressed(KEY_D):
-		testar_lanterna("direita")
+	# Para não spammar o evento caso ele segure o botão
+	if acionou and not lanterna_pressionada:
+		lanterna_pressionada = true
+		testar_lanterna(direcao)
+	elif not acionou:
+		lanterna_pressionada = false
 
 
 func testar_lanterna(direcao):
+	# Efeitos visuais e sonoros da lanterna acendendo
+	flash_luz.color.a = 0.4
+	som_lanterna.play()
 
 	# Procura um inimigo na direção apontada
 	for i in range(inimigos_ativos.size() - 1, -1, -1):
@@ -220,6 +271,10 @@ func testar_lanterna(direcao):
 
 		# Se for normal, rápido ou lento, mata
 		print("MATOU:", inimigo.tipo)
+		
+		# Feedback de acerto
+		som_inimigo_derrotado.play()
+		flash_luz.color = Color(0.8, 1.0, 0.8, 0.6) # Pisca verde rápido
 
 		inimigo.node.queue_free()
 		inimigos_ativos.remove_at(i)
@@ -260,6 +315,9 @@ func proximo_level():
 
 func game_over():
 	jogo_terminou = true
+	som_jumpscare.play()
+	shake_intensity = 0.0
+	bg.position = Vector2(-2, 2)
 
 	# Remove todos os inimigos
 	for inimigo in inimigos_ativos:
