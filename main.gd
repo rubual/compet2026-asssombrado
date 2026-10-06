@@ -204,13 +204,13 @@ func _process(delta):
 	var acionou = false
 	var direcao = ""
 
-	if Input.is_key_pressed(KEY_A) or Input.is_action_pressed("ui_left"):
+	if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT) or Input.is_action_pressed("ui_left") or Input.is_joy_button_pressed(0, JOY_BUTTON_A):
 		direcao = "esquerda"
 		acionou = true
-	elif Input.is_key_pressed(KEY_S) or Input.is_action_pressed("ui_down"):
+	elif Input.is_key_pressed(KEY_W) or Input.is_key_pressed(KEY_UP) or Input.is_action_pressed("ui_up") or Input.is_joy_button_pressed(0, JOY_BUTTON_B):
 		direcao = "centro"
 		acionou = true
-	elif Input.is_key_pressed(KEY_D) or Input.is_action_pressed("ui_right"):
+	elif Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT) or Input.is_action_pressed("ui_right") or Input.is_joy_button_pressed(0, JOY_BUTTON_X):
 		direcao = "direita"
 		acionou = true
 
